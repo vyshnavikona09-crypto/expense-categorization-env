@@ -1,0 +1,25 @@
+name: expense-categorization-env
+description: An environment where an AI agent learns to categorize financial transactions into expense categories.
+
+version: 1.0
+
+entrypoint: env.environment:ExpenseEnv
+
+tasks:
+  - name: easy
+    description: Simple, clearly labeled transactions
+  - name: medium
+    description: Moderately ambiguous transactions
+  - name: hard
+    description: Ambiguous and confusing transactions
+
+observation_space:
+  transaction: string
+  amount: float
+  step: int
+
+action_space:
+  category: string
+
+reward:
+  range: [-1.0, 1.0]

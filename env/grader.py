@@ -1,9 +1,24 @@
 def grade(results):
-    correct = 0
-    total = len(results)
+    """
+    results = list of reward.reason strings
+    Example: ["correct", "wrong", "partial"]
+    """
+
+    if not results:
+        return 0.0
+
+    score = 0.0
 
     for r in results:
         if r == "correct":
-            correct += 1
+            score += 1.0
+        elif r == "partial":
+            score += 0.5
+        elif r == "wrong":
+            score += 0.0
+        else:
+            score += 0.0  # safety fallback
 
-    return correct / total if total > 0 else 0.0
+    final_score = score / len(results)
+
+    return round(final_score, 2)

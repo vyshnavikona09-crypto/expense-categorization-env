@@ -1,6 +1,7 @@
 from env.models import Observation, Action, Reward
 from env.tasks import TASKS
 
+
 class ExpenseEnv:
     def __init__(self, difficulty="easy"):
         self.tasks = TASKS[difficulty]
@@ -21,29 +22,31 @@ class ExpenseEnv:
         task = self.tasks[self.current_step]
         correct = task["label"]
 
-        # reward logic
+        # 🔥 Improved similarity mapping (more realistic)
         SIMILAR = {
-            "Food": ["Shopping"],
-            "Shopping": ["Food"],
-            "Bills": ["Other"],
-            "Transport": ["Other"],
+            "Food": ["Shopping"],        # groceries confusion
+            "Shopping": ["Food"],        # snacks/groceries confusion
+            "Bills": ["Other"],          # recharge vs misc
+            "Transport": ["Other"],      # taxi vs misc
+            "Other": ["Bills", "Transport"]
         }
 
-        user_cat = action.category.strip().lower()
-        correct_cat = correct.lower()
+        user_cat = action.category.strip().capitalize()
+        correct_cat = correct
 
+        # 🔥 Reward logic
         if user_cat == correct_cat:
             reward_value = 1.0
             reason = "correct"
 
-        elif correct in SIMILAR and action.category.capitalize() in SIMILAR[correct]:
+        elif correct_cat in SIMILAR and user_cat in SIMILAR[correct_cat]:
             reward_value = 0.5
-            reason = "partially correct"
+            reason = "partial"   
 
         else:
             reward_value = -1.0
-            reason = f"wrong (expected {correct})"
-        
+            reason = "wrong"
+
         # --- move to next step ---
         self.current_step += 1
         done = self.current_step >= self.total_steps
@@ -59,7 +62,7 @@ class ExpenseEnv:
             observation = None
 
         return observation, Reward(value=reward_value, reason=reason), done, {}
-    
+
     def state(self):
         return {
             "current_step": self.current_step,

@@ -1,0 +1,12 @@
+[Expense Categorization Environment]
+name = "expense-categorization-env"
+version = "1.0.0"
+description = "Expense categorization OpenEnv environment"
+authors = [
+  { name = "Vyshnavi" }
+]
+dependencies = []
+
+[build-system]
+requires = ["setuptools"]
+build-backend = "setuptools.build_meta"

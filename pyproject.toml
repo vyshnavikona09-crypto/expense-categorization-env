@@ -1,4 +1,4 @@
-[Expense Categorization Environment]
+[project]
 name = "expense-categorization-env"
 version = "1.0.0"
 description = "Expense categorization OpenEnv environment"

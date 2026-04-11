@@ -1,5 +1,9 @@
+id="final_yaml_fix"
 name: expense-categorization-env
-description: An environment where an AI agent learns to categorize financial transactions into expense categories.
+description: >
+  A real-world OpenEnv environment where an AI agent categorizes financial
+  transactions into predefined expense categories such as Food, Transport,
+  Bills, Shopping, and Other.
 
 version: 1.0
 
@@ -7,19 +11,32 @@ entrypoint: env.environment:ExpenseEnv
 
 tasks:
   - name: easy
-    description: Simple, clearly labeled transactions
+    description: Clear and unambiguous transactions
   - name: medium
-    description: Moderately ambiguous transactions
+    description: Moderately ambiguous transactions requiring context
   - name: hard
-    description: Ambiguous and confusing transactions
+    description: Highly ambiguous transactions requiring reasoning
 
 observation_space:
-  transaction: string
-  amount: float
-  step: int
+  transaction:
+    type: string
+    description: Description of the transaction
+  amount:
+    type: float
+    description: Transaction amount
+  step:
+    type: integer
+    description: Current step in the episode
 
 action_space:
-  category: string
+  category:
+    type: string
+    description: One of [Food, Transport, Bills, Shopping, Other]
 
 reward:
+  type: float
   range: [-1.0, 1.0]
+  description: >
+    Reward is +1.0 for correct classification,
+    +0.5 for partially correct classification,
+    and -1.0 for incorrect classification.

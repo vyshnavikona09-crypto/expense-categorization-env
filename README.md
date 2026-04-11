@@ -1,59 +1,98 @@
-# Expense Categorization OpenEnv
+# Expense Categorization OpenEnv Environment
 
 ## Overview
-This environment simulates a real-world task where an agent categorizes financial transactions into categories such as Food, Transport, Bills, Shopping, and Other.
+This project implements a real-world OpenEnv environment for expense categorization, where an AI agent classifies financial transactions into categories such as Food, Transport, Bills, Shopping, and Other.
+
+The environment follows the OpenEnv specification with structured Observation, Action, and Reward models, along with step(), reset(), and state() APIs.
+
+---
 
 ## Motivation
-Expense tracking is a common real-world task used in finance apps. This environment allows training and evaluation of AI agents for automatic categorization.
+Expense categorization is a fundamental feature in modern financial applications such as banking apps, budgeting tools, and expense trackers.
 
-## Observation Space
-- transaction (string): description of expense
-- amount (float): transaction amount
-- step (int): current step in episode
+This environment simulates how users interpret and categorize transactions, enabling AI agents to learn and automate this process efficiently.
 
-## Action Space
-- category (string): one of Food, Transport, Bills, Shopping, Other
+---
 
-## Tasks
-- Easy: clear transactions
-- Medium: moderately ambiguous
-- Hard: highly ambiguous
+## Real-World Impact
+This environment can be used to train agents for:
 
-## Reward System
-- Correct: +1.0
-- Partially correct: +0.5
-- Wrong: -1.0
+- Automated expense tracking systems  
+- Smart financial assistants  
+- Budget analysis and insights  
+- Transaction classification in banking apps  
+
+It provides a realistic simulation of how financial data is processed in real-world systems.
+
+---
+
+## Environment Design
+
+### Observation Space
+- `transaction` (str): description of the expense  
+- `amount` (float): transaction value  
+- `step` (int): current step in episode  
+
+---
+
+### Action Space
+- `category` (str): one of  
+  `Food, Transport, Bills, Shopping, Other`
+
+---
+
+### API Endpoints
+- `POST /reset` → Initialize environment  
+- `POST /step` → Perform action  
+- `GET /state` → Retrieve current state  
+
+---
+
+## Task Design
+
+The environment includes three difficulty levels:
+
+### Easy
+- Clear and unambiguous transactions  
+- Example: “Uber ride to office”  
+
+### Medium
+- Slight ambiguity (e.g., platform-based purchases)  
+- Example: “Amazon purchase - headphones”  
+
+### Hard
+- Highly ambiguous transactions requiring contextual reasoning  
+- Example: “Google Play recharge for game purchase”  
+
+This progression ensures increasing complexity and realistic agent evaluation.
+
+---
+
+## Reward Design
+
+The reward system provides continuous feedback:
+
+- **+1.0** → Correct classification  
+- **+0.5** → Partially correct (similar category)  
+- **-1.0** → Incorrect classification  
+
+This allows agents to learn progressively instead of relying on binary success signals.
+
+---
+
+## Baseline Agent
+
+The provided inference script uses:
+
+- OpenAI API (if available)  
+- Rule-based fallback logic (ensures reproducibility)  
+
+This guarantees consistent baseline performance even without external dependencies.
+
+---
 
 ## Setup
+
 ```bash
 pip install -r requirements.txt
 python inference.py
-
-
-## Example Interaction
-
-[START] Running task: easy
-
-[STEP] Transaction: Swiggy order ₹200 | Amount: 200
-[STEP] AI chose: Food
-[STEP] Reward: 1.0 | Reason: correct
-
-[STEP] Transaction: Uber ride ₹150 | Amount: 150
-[STEP] AI chose: Transport
-[STEP] Reward: 1.0 | Reason: correct
-
-[END] Final Score (0–1): 1.0
-
-
-## Real-World Impact
-
-Expense categorization is a core feature in many financial applications such as budgeting tools, banking apps, and personal finance trackers.
-
-This environment simulates how users manually categorize transactions, enabling AI agents to learn and automate this process.
-
-Potential applications include:
-- Automatic expense tracking in finance apps
-- Smart budgeting assistants
-- Financial insights and analytics systems
-
-By training agents in this environment, developers can build more intelligent and user-friendly financial tools.

@@ -1,61 +1,83 @@
 import os
+import time
 from openai import OpenAI
 
 from env.environment import ExpenseEnv
 from env.models import Action
 from env.grader import grade
 
-# Initialize OpenAI client (with required env variables)
-client = OpenAI(
-    api_key=os.getenv("OPENAI_API_KEY"),
-    base_url=os.getenv("API_BASE_URL", "https://api.openai.com/v1")
-)
+# Initialize OpenAI client
+api_key = os.getenv("OPENAI_API_KEY")
+
+if api_key:
+    client = OpenAI(
+        api_key=api_key,
+        base_url=os.getenv("API_BASE_URL", "https://api.openai.com/v1")
+    )
+else:
+    client = None
 
 MODEL_NAME = os.getenv("MODEL_NAME", "gpt-4.1-mini")
 
 
+def normalize_category(text):
+    text = text.strip().lower()
+
+    if "food" in text:
+        return "Food"
+    elif "transport" in text:
+        return "Transport"
+    elif "bill" in text:
+        return "Bills"
+    elif "shop" in text:
+        return "Shopping"
+    else:
+        return "Other"
+
+
+def fallback_logic(transaction_text):
+    text = transaction_text.lower()
+
+    if any(x in text for x in ["swiggy", "zomato", "restaurant", "food", "snack"]):
+        return "Food"
+
+    if any(x in text for x in ["uber", "ola", "petrol", "fuel", "ride"]):
+        return "Transport"
+
+    if any(x in text for x in ["electricity", "bill", "recharge", "subscription", "netflix"]):
+        return "Bills"
+
+    if any(x in text for x in ["amazon", "flipkart", "purchase", "order", "item"]):
+        return "Shopping"
+
+    return "Other"
+
+
 def get_ai_action(transaction_text):
+
+    # Fallback mode
+    if client is None:
+        return fallback_logic(transaction_text)
+
     prompt = f"""
 Classify the following expense into one of these categories:
 Food, Transport, Bills, Shopping, Other
-
 Transaction: {transaction_text}
-
-Return ONLY the category name.
+Return ONLY one word from the list.
 """
 
     try:
         response = client.chat.completions.create(
             model=MODEL_NAME,
-            messages=[
-                {"role": "user", "content": prompt}
-            ],
+            messages=[{"role": "user", "content": prompt}],
             temperature=0
         )
 
-        category = response.choices[0].message.content.strip()
-        
-        # Clean output (just in case model returns extra text)
-        category = category.split()[0]
-        return category
+        raw_output = response.choices[0].message.content.strip()
+        return normalize_category(raw_output)
 
-    except Exception as e:
-        print(f"[STEP] API error: {e}")
-        print("[STEP] Using fallback logic...")
-
-        # Fallback rule-based system
-        text = transaction_text.lower()
-
-        if "swiggy" in text or "zomato" in text or "grocery" in text:
-            return "Food"
-        elif "uber" in text or "petrol" in text:
-            return "Transport"
-        elif "bill" in text or "recharge" in text:
-            return "Bills"
-        elif "amazon" in text or "flipkart" in text or "order" in text:
-            return "Shopping"
-        else:
-            return "Other"
+    except Exception:
+        return fallback_logic(transaction_text)
 
 
 def run_environment(difficulty="easy"):
@@ -65,26 +87,24 @@ def run_environment(difficulty="easy"):
     done = False
     results = []
 
-    print(f"\n[START] Running task: {difficulty}\n")
+    print(f"[START] Running task: {difficulty}")
 
     while not done:
         print(f"[STEP] Transaction: {obs.transaction} | Amount: {obs.amount}")
 
-        # AI decides action
         ai_category = get_ai_action(obs.transaction)
-        print(f"[STEP] AI chose: {ai_category}")
 
         action = Action(category=ai_category)
 
         obs, reward, done, _ = env.step(action)
 
-        print(f"[STEP] Reward: {reward.value} | Reason: {reward.reason}\n")
+        print(f"[STEP] Reward: {reward.value} | Reason: {reward.reason}")
 
         results.append(reward.reason)
 
     score = grade(results)
 
-    print(f"[END] Final Score (0–1): {score}\n")
+    print(f"[END] Final Score: {score}")
 
     return score
 
@@ -97,4 +117,8 @@ if __name__ == "__main__":
         total_score += score
 
     avg_score = total_score / 3
-    print(f"Overall Average Score: {avg_score}")
+    print(f"[END] Overall Average Score: {avg_score}")
+
+    # Keep container alive
+    while True:
+        time.sleep(60)

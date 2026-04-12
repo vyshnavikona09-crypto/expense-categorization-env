@@ -10,7 +10,6 @@ def main():
     while not done:
         print(f"Transaction: {obs.transaction}, Amount: {obs.amount}")
 
-        # simple rule-based agent
         text = obs.transaction.lower()
 
         if "swiggy" in text or "zomato" in text or "grocery" in text:
@@ -29,6 +28,11 @@ def main():
         obs, reward, done, _ = env.step(action)
 
         print(f"Reward: {reward.value}, Reason: {reward.reason}")
+
+    import time
+    while True:
+        time.sleep(60)
+
 
 if __name__ == "__main__":
     main()

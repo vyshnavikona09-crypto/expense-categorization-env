@@ -1,47 +1,34 @@
-from fastapi import FastAPI
 from env.environment import ExpenseEnv
 from env.models import Action
 
-app = FastAPI()
+def main():
+    env = ExpenseEnv(difficulty="easy")
 
-env = ExpenseEnv(difficulty="easy")
-
-
-@app.post("/reset")
-def reset():
     obs = env.reset()
-    return {
-        "transaction": obs.transaction,
-        "amount": obs.amount,
-        "step": obs.step
-    }
+    done = False
 
+    while not done:
+        print(f"Transaction: {obs.transaction}, Amount: {obs.amount}")
 
-@app.post("/step")
-def step(action: dict):
-    act = Action(category=action["category"])
-    obs, reward, done, info = env.step(act)
+        # simple rule-based agent
+        text = obs.transaction.lower()
 
-    if obs is None:
-        return {
-            "transaction": None,
-            "amount": None,
-            "step": None,
-            "reward": reward.value,
-            "reason": reward.reason,
-            "done": done
-        }
+        if "swiggy" in text or "zomato" in text or "grocery" in text:
+            category = "Food"
+        elif "uber" in text or "petrol" in text:
+            category = "Transport"
+        elif "bill" in text or "recharge" in text:
+            category = "Bills"
+        elif "amazon" in text or "flipkart" in text or "order" in text:
+            category = "Shopping"
+        else:
+            category = "Other"
 
-    return {
-        "transaction": obs.transaction,
-        "amount": obs.amount,
-        "step": obs.step,
-        "reward": reward.value,
-        "reason": reward.reason,
-        "done": done
-    }
+        action = Action(category=category)
 
+        obs, reward, done, _ = env.step(action)
 
-@app.get("/state")
-def state():
-    return env.state()
+        print(f"Reward: {reward.value}, Reason: {reward.reason}")
+
+if __name__ == "__main__":
+    main()

@@ -1,5 +1,4 @@
 import os
-import time
 from openai import OpenAI
 
 from env.environment import ExpenseEnv
@@ -118,7 +117,3 @@ if __name__ == "__main__":
 
     avg_score = total_score / 3
     print(f"[END] Overall Average Score: {avg_score}")
-
-    # Keep container alive
-    while True:
-        time.sleep(60)

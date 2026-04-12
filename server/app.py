@@ -42,5 +42,13 @@ def root():
 def run():
     return {"result": main()}
 
+@app.post("/reset")
+def reset():
+    obs = env.reset()
+    return {
+        "transaction": obs.transaction,
+        "amount": obs.amount
+    }
+
 if __name__ == "__main__":
     main()

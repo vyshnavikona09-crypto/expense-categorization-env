@@ -44,10 +44,12 @@ def run():
 
 @app.post("/reset")
 def reset():
+    env = ExpenseEnv(difficulty="easy")  # create fresh each time
     obs = env.reset()
+
     return {
-        "transaction": obs.transaction,
-        "amount": obs.amount
+        "transaction": str(obs.transaction),
+        "amount": float(obs.amount)
     }
 
 if __name__ == "__main__":

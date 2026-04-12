@@ -2,10 +2,15 @@
 name = "expense-categorization-env"
 version = "1.0.0"
 description = "Expense categorization OpenEnv environment"
-dependencies = []
+authors = [
+    { name = "Vyshnavi" }
+]
+dependencies = [
+    "openenv-core>=0.2.0"
+]
 
 [project.scripts]
-server = "server.app:app"
+server = "server.app:main"
 
 [build-system]
 requires = ["setuptools"]

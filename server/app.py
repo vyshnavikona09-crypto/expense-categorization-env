@@ -7,7 +7,7 @@ from env.models import Action
 
 app = FastAPI()
 
-# ✅ LLM client (IMPORTANT for hackathon check)
+# LLM client (IMPORTANT for hackathon check)
 client = OpenAI(
     base_url=os.environ["API_BASE_URL"],
     api_key=os.environ["API_KEY"]
@@ -24,7 +24,7 @@ def run_environment(difficulty="easy"):
     while not done:
         text = obs.transaction
 
-        # ✅ LLM call (THIS IS WHAT THEY CHECK)
+        # LLM call (THIS IS WHAT THEY CHECK)
         response = client.chat.completions.create(
             model="gpt-4o-mini",
             messages=[
@@ -50,7 +50,7 @@ def run_environment(difficulty="easy"):
     return score
 
 
-# ✅ REQUIRED endpoint (THIS FIXES OPENENV RESET ERROR)
+# REQUIRED endpoint (THIS FIXES OPENENV RESET ERROR)
 @app.post("/reset")
 def reset():
     total_score = 0
@@ -67,7 +67,7 @@ def reset():
     }
 
 
-# ✅ Health check (optional but safe)
+# Health check (optional but safe)
 @app.get("/")
 def home():
     return {"message": "API is running"}
